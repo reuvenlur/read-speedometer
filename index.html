@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Read Speedometer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+</head>
+<body>
+    <h1>Read Speedometer</h1>
+    <canvas id="pdfCanvas"></canvas>
+    <p>Word Count: <span id="wordCount">Loading...</span></p>
+    <div class="controls">
+        <button id="prevPage">Previous Page</button>
+        <button id="nextPage">Next Page</button>
+        <p>Page: <span id="currentPage">1</span> / <span id="totalPages"></span></p>
+    </div>    
+    <script src="app.js"></script>
+</body>
+</html>
