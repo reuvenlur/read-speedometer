@@ -1,0 +1,45 @@
+services:
+  database:
+    image: mariadb:latest
+    container_name: read-speedometer-database
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD}
+      MYSQL_DATABASE: ${DATABASE_NAME}
+    ports:
+      - "${DATABASE_EXTERNAL_PORT}:${DATABASE_INTERNAL_PORT}"
+    networks:
+      - app-network
+    dns: 8.8.8.8  # Added DNS for proper name resolution
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  backend:
+    build: ./backend
+    container_name: read-speedometer-backend
+    ports:
+      - "${BACKEND_EXTERNAL_PORT}:${BACKEND_INTERNAL_PORT}"
+    depends_on:
+      - database
+    networks:
+      - app-network
+    env_file:
+      - .env
+    command: gunicorn -b 0.0.0.0:${BACKEND_INTERNAL_PORT} server:app --log-level=debug
+    dns: 8.8.8.8  # Added DNS for proper name resolution
+
+  frontend:
+    build: ./frontend
+    container_name: read-speedometer-frontend
+    ports:
+      - "${FRONTEND_PORT}:80"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+    env_file:
+      - .env
+    dns: 8.8.8.8  # Added DNS for proper name resolution
+
+networks:
+  app-network:
+    driver: bridge
