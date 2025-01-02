@@ -9,7 +9,7 @@ services:
       - "${DATABASE_EXTERNAL_PORT}:${DATABASE_INTERNAL_PORT}"
     networks:
       - app-network
-    dns: 8.8.8.8  # Added DNS for proper name resolution
+    dns: 8.8.8.8
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
@@ -24,8 +24,8 @@ services:
       - app-network
     env_file:
       - .env
-    command: gunicorn -b 0.0.0.0:${BACKEND_INTERNAL_PORT} server:app --log-level=debug
-    dns: 8.8.8.8  # Added DNS for proper name resolution
+    command: gunicorn -b 0.0.0.0:${BACKEND_INTERNAL_PORT} server:app --log-level=info
+    dns: 8.8.8.8
 
   frontend:
     build: ./frontend
@@ -38,7 +38,7 @@ services:
       - app-network
     env_file:
       - .env
-    dns: 8.8.8.8  # Added DNS for proper name resolution
+    dns: 8.8.8.8
 
 networks:
   app-network:

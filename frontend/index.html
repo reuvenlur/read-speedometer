@@ -4,20 +4,65 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Read Speedometer</title>
+    <link rel="stylesheet" href="styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
 </head>
 <body>
-    <h1>Read Speedometer</h1>
-    <canvas id="pdfCanvas"></canvas>
-    <p>Word Count: <span id="wordCount">Loading...</span></p>
-    <div class="controls">
+    <!-- תיבת הזנת שם -->
+    <div id="name-input-container" style="display: flex; flex-direction: column; align-items: center; margin-top: 50px;">
+        <label for="username" style="font-size: 18px; color: #333; margin-bottom: 10px;">אנא הזן את שמך:</label>
+        <input
+            type="text"
+            id="username"
+            placeholder="הכנס שם כאן"
+            style="padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 5px; width: 300px;"
+        />
+        <button
+            id="start-session"
+            style="margin-top: 15px; padding: 10px 20px; background-color: #4caf50; color: white; font-size: 16px; border: none; border-radius: 5px; cursor: pointer;">
+            התחל סשן
+        </button>
+    </div>
+
+    <!-- האלמנטים הקיימים -->
+    <h1 style="display: none;" id="app-title">Read Speedometer</h1>
+    <canvas id="pdfCanvas" style="display: none;"></canvas>
+    <p style="display: none;">Word Count: <span id="wordCount">Loading...</span></p>
+    <div class="controls" style="display: none;">
         <button id="prevPage">Previous Page</button>
         <button id="nextPage">Next Page</button>
         <p>Page: <span id="currentPage">1</span> / <span id="totalPages"></span></p>
     </div>
-    <div id="reading-info" style="position: relative; margin-top: 20px; background-color: #f4f4f4; padding: 10px; border-top: 1px solid #ccc; font-family: Arial, sans-serif; text-align: center;">
+    <div id="reading-info" style="display: none; position: relative; margin-top: 20px; background-color: #f4f4f4; padding: 10px; border-top: 1px solid #ccc; font-family: Arial, sans-serif; text-align: center;">
         <p id="info-text">Reading data will appear here.</p>
     </div>
+
+    <!-- טבלה להצגת נתונים -->
+    <div style="margin-top: 50px; text-align: center;">
+        <h3>Database Records</h3>
+        <div id="data-container">
+            <table border="1" id="data-table" style="margin: 0 auto; border-collapse: collapse; width: 80%;">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Page</th>
+                        <th>Time Spent (s)</th>
+                        <th>Reading Speed (WPM)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- הנתונים יתווספו כאן -->
+                </tbody>
+            </table>
+        </div>
+        <!-- כפתור למחיקת הנתונים -->
+        <button onclick="cleanDatabase()" style="margin-top: 15px; padding: 10px 20px; background-color: #f44336; color: white; font-size: 16px; border: none; border-radius: 5px; cursor: pointer;">
+            Clean All Data
+        </button>
+    </div>
+
+    <!-- טוען את קובץ ה-JavaScript -->
     <script src="app.js"></script>
 </body>
 </html>

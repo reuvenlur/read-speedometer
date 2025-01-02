@@ -1,29 +1,171 @@
-// עוטף את כל הקוד ב-DOMContentLoaded
+// Function to start session
+async function startSession() {
+    // Attempting to start session
+    const usernameInput = document.getElementById("username");
+    if (!usernameInput) {
+        // Username input element not found
+        return;
+    }
+
+    const username = usernameInput.value.trim();
+    if (!username) {
+        // No username provided
+        alert("אנא הזן שם כדי להמשיך.");
+        return;
+    }
+
+    // Username provided: ${username}
+    const success = await sendUsernameToBackend(username);
+    if (!success) {
+        alert("שגיאה בשמירת שם המשתמש. אנא נסה שוב.");
+        return;
+    }
+
+    // Session started successfully
+    const nameInputContainer = document.getElementById("name-input-container");
+    if (nameInputContainer) {
+        nameInputContainer.style.display = "none";
+    }
+
+    const appTitle = document.getElementById("app-title");
+    if (appTitle) {
+        appTitle.style.display = "block";
+    } else {
+        // App title element not found
+    }
+
+    const pdfCanvas = document.getElementById("pdfCanvas");
+    if (pdfCanvas) {
+        pdfCanvas.style.display = "block";
+    }
+
+    const controls = document.querySelector(".controls");
+    if (controls) {
+        controls.style.display = "block";
+    }
+
+    const readingInfo = document.getElementById("reading-info");
+    if (readingInfo) {
+        readingInfo.style.display = "block";
+    }
+}
+
+// Function to send username to backend
+async function sendUsernameToBackend(username) {
+    const backendServiceUrl = 'http://localhost:5001/save_username_in_session';
+
+    try {
+        const response = await fetch(backendServiceUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username }),
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            // Username saved successfully
+            return true;
+        } else {
+            // Backend error: ${data.error}
+            return false;
+        }
+    } catch (error) {
+        // Error communicating with the backend
+        return false;
+    }
+}
+
+// Function to fetch and display data
+async function fetchAndDisplayData() {
+    // Fetching data from backend
+    const backendServiceUrl = `http://localhost:5001/get_all_data`;
+
+    try {
+        const response = await fetch(backendServiceUrl);
+        const data = await response.json();
+
+        if (response.ok) {
+            // Data fetched successfully
+            const dataContainer = document.getElementById("data-table").querySelector("tbody");
+            dataContainer.innerHTML = "";
+
+            data.forEach(row => {
+                const rowElement = document.createElement("tr");
+                rowElement.innerHTML = `
+                    <td>${row.id}</td>
+                    <td>${row.username}</td>
+                    <td>${row.page_number}</td>
+                    <td>${row.time_spent}</td>
+                    <td>${row.reading_speed}</td>
+                `;
+                dataContainer.appendChild(rowElement);
+            });
+        } else {
+            // Error fetching data: ${data.error}
+        }
+    } catch (error) {
+        // Error communicating with the backend
+    }
+}
+
+// Function to start auto-refresh
+function startAutoRefresh() {
+    // Starting auto-refresh
+    setInterval(() => {
+        fetchAndDisplayData();
+    }, 10000);
+}
+
+// Function to clean database
+async function cleanDatabase() {
+    // Cleaning database
+    const backendServiceUrl = 'http://localhost:5001/delete_all_data';
+
+    try {
+        const response = await fetch(backendServiceUrl, { method: 'POST' });
+        const result = await response.json();
+        if (response.ok) {
+            // Database cleaned successfully
+            alert("All data has been deleted!");
+            fetchAndDisplayData();
+        } else {
+            // Error cleaning database: ${result.error}
+        }
+    } catch (error) {
+        // Error communicating with the backend
+    }
+}
+
+// Event listener for DOM content loaded
 document.addEventListener('DOMContentLoaded', () => {
-    // URL of the PDF file
+    // Initializing application
+    const startSessionButton = document.getElementById("start-session");
+    if (startSessionButton) {
+        startSessionButton.addEventListener("click", startSession);
+        // Start session button connected
+    } else {
+        // start-session button not found
+    }
+
     const url = 'example.pdf';
 
     let pdfDoc = null;
     let currentPage = 1;
-    let startTime = Date.now(); // Start time for calculating time spent on a page
+    let startTime = Date.now();
 
-    // Set the backend service configuration
-    const backendServiceUrl = `http://localhost:5001/calculate_speed`;
-
-    // Load the PDF document
     pdfjsLib.getDocument(url).promise.then((pdf) => {
-        console.log(`PDF loaded successfully. Total pages: ${pdf.numPages}`);
+        // PDF loaded successfully. Total pages: ${pdf.numPages}
         pdfDoc = pdf;
         document.getElementById('totalPages').innerText = pdf.numPages;
-
-        renderPage(currentPage); // Render the first page
+        renderPage(currentPage);
     }).catch(error => {
-        console.error("Error loading PDF:", error);
+        // Error loading PDF
     });
 
-    // Function to render a specific page
     function renderPage(pageNum) {
-        console.log(`Rendering page: ${pageNum}`);
+        // Rendering page ${pageNum}
         pdfDoc.getPage(pageNum).then((page) => {
             const canvas = document.getElementById('pdfCanvas');
             const context = canvas.getContext('2d');
@@ -32,83 +174,57 @@ document.addEventListener('DOMContentLoaded', () => {
             canvas.height = viewport.height;
             canvas.width = viewport.width;
 
-            // Render the page on the canvas
             page.render({
                 canvasContext: context,
                 viewport: viewport,
-            }).promise.then(() => {
-                console.log(`Page ${pageNum} rendered successfully.`);
-            }).catch(error => {
-                console.error(`Error rendering page ${pageNum}:`, error);
+            }).promise.catch(error => {
+                // Error rendering page ${pageNum}
             });
 
-            // Extract text content and calculate word count
             page.getTextContent().then((textContent) => {
-                const pageText = textContent.items.map((item) => item.str).join(' ');
-                const wordCount = pageText.split(/\s+/).filter(word => word.length > 0).length;
-
-                console.log(`Page ${pageNum}: Word count calculated: ${wordCount}`);
+                const wordCount = textContent.items.map((item) => item.str).join(' ').split(/\s+/).filter(word => word.length > 0).length;
                 document.getElementById('wordCount').innerText = wordCount;
                 document.getElementById('currentPage').innerText = pageNum;
             }).catch(error => {
-                console.error(`Error extracting text from page ${pageNum}:`, error);
+                // Error extracting text from page ${pageNum}
             });
         }).catch(error => {
-            console.error(`Error loading page ${pageNum}:`, error);
+            // Error loading page ${pageNum}
         });
     }
 
-    // Function to calculate the time spent on the current page
     function calculateTimeSpent() {
-        const endTime = Date.now(); // End time for the page
-        const timeSpent = ((endTime - startTime) / 1000).toFixed(2); // Calculate time spent in seconds
-        console.log(`Time spent on page ${currentPage}: ${timeSpent} seconds`);
-        startTime = endTime; // Reset start time for the next page
+        const endTime = Date.now();
+        const timeSpent = ((endTime - startTime) / 1000).toFixed(2);
+        // Time spent on page ${currentPage}: ${timeSpent} seconds
+        startTime = endTime;
         return timeSpent;
     }
 
-    // Navigate to the previous page
     document.getElementById('prevPage').addEventListener('click', () => {
-        if (currentPage <= 1) {
-            console.warn("Already on the first page. Cannot navigate further back.");
-            return;
-        }
+        if (currentPage <= 1) return;
         currentPage--;
-        console.log(`Navigating to previous page: ${currentPage}`);
+        // Navigating to previous page: ${currentPage}
         renderPage(currentPage);
     });
 
-    // Navigate to the next page
     document.getElementById('nextPage').addEventListener('click', async () => {
-        if (currentPage >= pdfDoc.numPages) {
-            console.warn("Already on the last page. Cannot navigate further forward.");
-            return;
-        }
+        if (currentPage >= pdfDoc.numPages) return;
 
-        const timeSpent = calculateTimeSpent(); // Calculate time spent on the current page
-        const wordCount = parseInt(document.getElementById('wordCount').innerText, 10); // Get word count
+        const timeSpent = calculateTimeSpent();
+        const wordCount = parseInt(document.getElementById('wordCount').innerText, 10);
 
-        console.log(`Sending data to backend for page ${currentPage}: Time spent = ${timeSpent}, Word count = ${wordCount}`);
+        // Saving reading data for page ${currentPage}: time spent = ${timeSpent}s, word count = ${wordCount}
+        await calculateReadingSpeedBackend(currentPage, timeSpent, wordCount);
 
-        // Send data to backend and get reading speed
-        const readingSpeed = await calculateReadingSpeedBackend(currentPage, timeSpent, wordCount);
-
-        console.log(`Backend response for page ${currentPage}: Reading speed = ${readingSpeed} words per minute`);
-
-        // Update info box at the bottom
-        document.getElementById('reading-info').innerText = `
-            Time spent on page ${currentPage}: ${timeSpent} seconds
-            Word count: ${wordCount}
-            Reading speed: ${readingSpeed} words per minute
-        `;
-
-        currentPage++; // Advance to the next page
-        console.log(`Navigating to next page: ${currentPage}`);
-        renderPage(currentPage); // Render the next page
+        currentPage++;
+        // Navigating to next page: ${currentPage}
+        renderPage(currentPage);
     });
 
-    // Function to calculate reading speed by communicating with the backend
     async function calculateReadingSpeedBackend(page, timeSpent, wordCount) {
+        const backendServiceUrl = 'http://localhost:5001/calculate_speed';
+
         try {
             const response = await fetch(backendServiceUrl, {
                 method: 'POST',
@@ -116,7 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    page: page, // Include page number
+                    page: page,
                     time_spent: timeSpent,
                     word_count: wordCount,
                 }),
@@ -124,15 +240,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await response.json();
             if (response.ok) {
-                console.log("Backend calculation successful:", data);
+                // Reading speed calculated: ${data.reading_speed} WPM
                 return data.reading_speed;
             } else {
-                console.error("Backend error:", data.error);
+                // Backend error: ${data.error}
                 return 0;
             }
         } catch (error) {
-            console.error("Error communicating with the backend:", error);
+            // Error communicating with the backend
             return 0;
         }
     }
+
+    fetchAndDisplayData();
+    startAutoRefresh();
 });
