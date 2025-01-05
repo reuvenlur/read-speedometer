@@ -1,48 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Meta tags for character encoding and responsive design -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Page title displayed on the browser tab -->
     <title>Read Speedometer</title>
+    
+    <!-- Link to external CSS file for styling -->
     <link rel="stylesheet" href="styles.css">
+    
+    <!-- PDF.js library for rendering PDF files -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
 </head>
 <body>
-    <!-- תיבת הזנת שם -->
+    <!-- Username input form to start session -->
     <div id="name-input-container" style="display: flex; flex-direction: column; align-items: center; margin-top: 50px;">
-        <label for="username" style="font-size: 18px; color: #333; margin-bottom: 10px;">אנא הזן את שמך:</label>
+        <label for="username" style="font-size: 18px; color: #333; margin-bottom: 10px;">Enter your name:</label>
         <input
             type="text"
             id="username"
-            placeholder="הכנס שם כאן"
+            placeholder="Enter name here"
             style="padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 5px; width: 300px;"
         />
         <button
             id="start-session"
             style="margin-top: 15px; padding: 10px 20px; background-color: #4caf50; color: white; font-size: 16px; border: none; border-radius: 5px; cursor: pointer;">
-            התחל סשן
+            Start Session
         </button>
     </div>
 
-    <!-- האלמנטים הקיימים -->
+    <!-- Hidden elements that are displayed after starting the session -->
     <h1 style="display: none;" id="app-title">Read Speedometer</h1>
     <canvas id="pdfCanvas" style="display: none;"></canvas>
     <p style="display: none;">Word Count: <span id="wordCount">Loading...</span></p>
     <div class="controls" style="display: none;">
+        <!-- Navigation buttons for PDF pages -->
         <button id="prevPage">Previous Page</button>
         <button id="nextPage">Next Page</button>
         <p>Page: <span id="currentPage">1</span> / <span id="totalPages"></span></p>
     </div>
+    
+    <!-- Section for displaying reading info -->
     <div id="reading-info" style="display: none; position: relative; margin-top: 20px; background-color: #f4f4f4; padding: 10px; border-top: 1px solid #ccc; font-family: Arial, sans-serif; text-align: center;">
         <p id="info-text">Reading data will appear here.</p>
     </div>
 
-    <!-- טבלה להצגת נתונים -->
+    <!-- Data table for displaying database records -->
     <div style="margin-top: 50px; text-align: center;">
         <h3>Database Records</h3>
         <div id="data-container">
             <table border="1" id="data-table" style="margin: 0 auto; border-collapse: collapse; width: 80%;">
                 <thead>
+                    <!-- Table headers -->
                     <tr>
                         <th>ID</th>
                         <th>Username</th>
@@ -52,17 +63,17 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- הנתונים יתווספו כאן -->
+                    <!-- Data rows will be added dynamically here -->
                 </tbody>
             </table>
         </div>
-        <!-- כפתור למחיקת הנתונים -->
+        <!-- Button to clear all data from the database -->
         <button onclick="cleanDatabase()" style="margin-top: 15px; padding: 10px 20px; background-color: #f44336; color: white; font-size: 16px; border: none; border-radius: 5px; cursor: pointer;">
             Clean All Data
         </button>
     </div>
 
-    <!-- טוען את קובץ ה-JavaScript -->
+    <!-- Include the JavaScript file -->
     <script src="app.js"></script>
 </body>
 </html>

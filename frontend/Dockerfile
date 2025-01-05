@@ -1,17 +1,17 @@
-# Use Nginx as the base image for serving static files
+# Use Nginx base image
 FROM nginx:stable-alpine
 
-# Set the working directory inside the container
+# Set working directory for Nginx
 WORKDIR /usr/share/nginx/html
 
-# Copy the frontend files (HTML, JS, CSS, PDF) to the container
-COPY index.html ./
-COPY app.js ./
-COPY example.pdf ./
-COPY styles.css ./
+# Copy frontend files to container
+COPY index.html ./  
+COPY app.js ./      
+COPY some_pdf.pdf ./ 
+COPY styles.css ./  
 
-# Expose the port for Nginx
+# Expose port for Nginx
 EXPOSE ${FRONTEND_PORT}
 
-# Start Nginx
+# Start Nginx in foreground
 CMD ["nginx", "-g", "daemon off;"]

@@ -1,10 +1,10 @@
-# Use the official Python image as a base image
+# Use official Python image as base
 FROM python:3.9-slim
 
 # Set the working directory in the container
 WORKDIR /app
 
-# Install required system dependencies, including MariaDB client, curl, net-tools, and iproute2
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     mariadb-client \
     curl \
@@ -12,18 +12,17 @@ RUN apt-get update && apt-get install -y \
     iproute2 \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy the entire project into the container
+# Copy project files to the container
 COPY . .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Set default environment variable for BACKEND_INTERNAL_PORT
-# ENV BACKEND_INTERNAL_PORT=5000
+# Set backend port environment variable
 ENV BACKEND_INTERNAL_PORT=5001
 
-# Expose the port for the Flask app
+# Expose the Flask app port
 EXPOSE ${BACKEND_INTERNAL_PORT}
 
-# Command to run the Flask application with Gunicorn
+# Run the Flask app with Gunicorn
 CMD ["gunicorn", "-b", "0.0.0.0:${BACKEND_INTERNAL_PORT}", "server:app"]
