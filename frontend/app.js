@@ -6,14 +6,14 @@ async function startSession() {
 
     const username = usernameInput.value.trim();  // Trim any whitespace from the input
     if (!username) {
-        alert("אנא הזן שם כדי להמשיך.");  // If no username is provided, alert the user
+        alert("אנא הזן שם כדי להמשיך");  // If no username is provided, alert the user
         return;
     }
 
     // Send the username to the backend for saving
     const success = await sendUsernameToBackend(username);
     if (!success) {
-        alert("שגיאה בשמירת שם המשתמש. אנא נסה שוב.");  // If there's an error saving the username, alert the user
+        alert("אירעה שגיאה במערכת");  // If there's an error saving the username, alert the user
         return;
     }
 
@@ -32,6 +32,8 @@ async function startSession() {
 
     const readingInfo = document.getElementById("reading-info");
     if (readingInfo) readingInfo.style.display = "block";  // Show the reading info section
+
+    // startTime = Date.now();
 }
 
 // Function to send username to backend
@@ -100,7 +102,7 @@ async function cleanDatabase() {
         const response = await fetch(backendServiceUrl, { method: 'POST' });  // Send a POST request to delete all data
         const result = await response.json();  // Parse the response to JSON
         if (response.ok) {
-            alert("All data has been deleted!");  // Alert the user that the data has been deleted successfully
+            alert("הנתונים נמחקו בהצלחה!");  // Alert the user that the data has been deleted successfully
             fetchAndDisplayData();  // Refresh the data after cleaning the database
         }
     } catch (error) {
